@@ -31,8 +31,8 @@ list::create \
         datatype {
             label "[_ acs-object-management.datatype]"
         }
-        delete {
-            label "[_ acs-object-management.Delete]"
+        action {
+            label "[_ acs-object-management.Action]"
             display_template "
                 <a href=\"@attributes.delete_url@\">
                   [_ acs-object-management.delete]
@@ -42,7 +42,7 @@ list::create \
         object_type {}
     }
 
-db_multirow -cache_pool acs_metadata -cache_key ${object_type}::get_attributes \
+db_multirow -cache_pool acs_metadata -cache_key t::${object_type}::get_attributes \
     -extend { attribute_url delete_url } attributes get_attributes {} {
     set attribute_url [export_vars -base attribute {attribute_id object_type}]
     set delete_url [export_vars -base attribute-delete {object_type attribute_name}]
@@ -69,7 +69,7 @@ list::create \
         object_type {}
     }
 
-db_multirow -cache_pool acs_metadata -cache_key ${object_type}::get_inherited_attributes \
+db_multirow -cache_pool acs_metadata -cache_key t::${object_type}::get_inherited_attributes \
     inherited_attributes get_inherited_attributes {}
 
 list::create \
@@ -81,10 +81,10 @@ list::create \
         pretty_name {
             label "[_ acs-object-management.pretty_name]"
             display_template "
-              <if @views.root_view_p@>
+              <if @views.root_view_p@ eq \"t\">
                 @views.pretty_name@
               </if>
-              <else
+              <else>
                 <a href=\"@views.view_url@\">
                   @views.pretty_name@
                 </a>
@@ -93,8 +93,8 @@ list::create \
         object_view {
             label "[_ acs-object-management.view]"
         }
-        delete {
-            label "[_ acs-object-management.Delete]"
+        actions {
+            label "[_ acs-object-management.Action]"
             display_template "
               <if @views.root_view_p@ eq \"f\">
                 <a href=\"@views.delete_url@\">
@@ -106,11 +106,10 @@ list::create \
         object_type {}
     }
 
-db_multirow -cache_pool acs_metadata -cache_key ${object_type}::get_views \
+db_multirow -cache_pool acs_metadata -cache_key t::${object_type}::get_views \
     -extend { view_url delete_url } views get_views {} {
-    set delete_url [export_vars -base view-delete { object_view }]
-    set view_url [export_vars -base view { object_view }]
-ns_log Notice "Huh? view_url: $view_url delete_url: $delete_url"
+    set delete_url [export_vars -base view-delete {object_type  object_view}]
+    set view_url [export_vars -base view {object_view}]
 }
 
 set add_form_url [export_vars -base form-ae {object_type}]

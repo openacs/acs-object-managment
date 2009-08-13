@@ -1,6 +1,7 @@
 ad_library {
 
-    Supporting procs for ACS Objects.
+    Supporting procs for ACS Objects.  Unlike the object type and view metadata procs,
+    these don't cache at the moment.
 
     @author Don Baccus (dhogaza@pacifier.com)
     @creation-date July 1, 2009
@@ -16,6 +17,22 @@ ad_proc -private object::split_attributes {
     -type_attributes_array:required
     -supertype_attributes_array:required
 } {
+
+    Walk through the attribute names stored in the attribute_array parameter, and
+    generate two arrays.  The "type_attributes_array" will contain the values for
+    the attributes that belong to the given object type, while the
+    supertype_attributes_array will contain the values for the attributes that
+    belong to the set of given object_type's supertypes.
+
+    This is used privately to generate insert/update dml statements for each of the
+    tables associated with a given type's inheritance hierarchy.
+
+    @param object_type The object type we're processing.
+    @param attributes_array The attributes for the object type and all of its supertypes.
+    @param type_attributes_array Output array for the attribute values for the object type.
+    @param supertype_attributes_array Output array for the attribute values for all of
+           the type's supertypes.
+
 } {
     upvar $attributes_array local_attributes_array
     upvar $type_attributes_array local_type_attributes_array
@@ -34,14 +51,27 @@ ad_proc -private object::split_attributes {
     }
 }
       
-# Change this to allow an array name or attributes, with the appropriate error.
-
 ad_proc -private object::new_inner {
     -object_type:required
     -object_id:required
     -attributes:required
 } {
+
+    Private function called by object::new to create a new object of a given type.  It
+    recursively walks the type hierarchy, inserting table values for the type's 
+    supertypes as it goes.  object::new wraps the outer call in a transaction to
+    guarantee that object creation is atomic.
+
+    @param object_type The type we're creating.
+    @param object_id The id of the object we're creating.  If empty, a new object_id
+           will be created.
+    @param attributes The attribute values for the new object in array get format.
+
+    @return The object_id of the new object.
+} {
+
     array set attributes_array $attributes
+  
     object_type::get -object_type $object_type -array object_type_info
     set id_column $object_type_info(id_column)
 
@@ -64,8 +94,10 @@ ad_proc -private object::new_inner {
         if { $object_id eq "" } {
             set object_id [db_nextval acs_object_id_seq]
         }
-        if { [llength [array name subtype_attributes]] > 0 } {
-            # error ...
+        if { [llength [array names supertype_attributes]] > 0 } {
+            # Internal error check - if we're creating an acs_object, it has no supertype
+            # therefore should have no supertype_attributes.
+            return -code "Internal error - supertype_attributes should be empty"
         }
     }
 
@@ -82,6 +114,7 @@ ad_proc -private object::new_inner {
 
     } else {
         # error for now as we don't handle generics etc
+        return -code error "Generic attributes are not supported."
     }
 
     return $object_id
@@ -90,10 +123,44 @@ ad_proc -private object::new_inner {
 ad_proc object::new {
     {-object_type acs_object}
     {-object_id ""}
-    {-attributes ""}
+    -attributes
+    -array
 } {
+
+    Create a new object.  This does not fully support the OpenACS object model.
+
+    1. We don't call the object type's "new" function, if one exists.  This package
+       doesn't create them, and in general I'd like to move away from them as it's
+       one of the things that makes supporting both oracle and postgresql burdensome.
+
+    2. This means that this function will fail if an object type has a "new" function
+       that does tricky things beyond simply creating the supertype object, then
+       adding the given type's table entry.
+
+    3. This function doesn't handle generic storage.  This is definitely a feature,
+       not a bug.
+
+    @param object_type The type we're creating.  Defaults to acs_object.
+    @param object_id The id of the object we're creating.  If empty, a new object_id
+           will be created.
+    @param attributes The attribute values for the new object in array get format. If
+           given, the 'array' parameter must not be specified.
+    @param array The name of the array in the caller's namespace that contains the
+           attribute values.  If given, the 'attribute' parameter value must not specified.
+
+    @return The object_id of the new object.
+
 } {
-    array set attributes_array $attributes
+
+    if { [info exists attributes] && [info exists array] } {
+        return -code error "Only one of the 'attributes' and 'array' parameters can be given"
+    }
+
+    if { [info exists attributes] } {
+        array set attributes_array $attributes
+    } else {
+        upvar $array attributes_array
+    }
 
     set attributes_array(object_type) $object_type
 
@@ -118,6 +185,10 @@ ad_proc object::new {
 ad_proc object::delete {
     -object_id:required
 } {
+
+    Delete an object.
+
+    @param object_id The id of the object to delete.
 } {
     package_exec_plsql -var_list [list [list object_id $object_id]] acs_object delete
 }
@@ -125,6 +196,13 @@ ad_proc object::delete {
 ad_proc object::get_object_type {
     -object_id:required
 } {
+
+    Return the type of an object.
+
+    @param object_id The object's id.
+
+    @return The object's type.
+
 } {
     return [db_string get_object_type {}]
 }
@@ -134,6 +212,22 @@ ad_proc object::get {
     {-view ""}
     -array:required
 } {
+
+    Return the attributes of an object type, using the given view (the root view, i.e.
+    all attributes, by default).  View attributes rather than type attributes are used
+    because they contain information on how to transform the database values to a
+    canonical form (i.e. calling to_char(date, 'YYYY-MMM-DD').
+
+    To do: localize values if asked to (create a localization proc that can be
+    called explicitly by code that doesn't use our "get" function).
+
+    @param object_id The id of the object.
+    @param view The object view to use.  Defaults to the root view, i.e. all attributes.  If
+           the specified view has been created for a type different than the object's type,
+           the results will be interesting.  Actually, carefully done, this can be used to
+           cast from a supertype to a subtype but you'd better know what you're doing.
+    @param array The name of an output array in the caller's namespace. 
+
 } {
     upvar $array local_array
     if { $view eq "" } {
@@ -148,6 +242,14 @@ ad_proc object::update_inner {
     -object_type:required
     -attributes:required
 } {
+    Private function called by object::update to update an object of a given type.  It
+    recursively walks the type hierarchy, updating table values for the type's 
+    supertypes as it goes.  object::update wraps the outer call in a transaction to
+    guarantee that object creation is atomic.
+
+    @param object_type The type we're updating.
+    @param object_id The id of the object we're updating.
+    @param attributes The new attribute values for the object in array get format.
 } {
     array set attributes_array $attributes
     object_type::get -object_type $object_type -array object_type_info
@@ -194,6 +296,17 @@ ad_proc object::update {
     -object_id:required
     -attributes:required
 } {
+    Update an object's value.  One of the interesting things about the original
+    Ars Digita object type specification is that it called for new and delete procs
+    for object types, but not for update procs.  Some object types created for
+    packages include update procs, most do not.
+
+    Since most types don't include update procs, unlike the object create case, we're not
+    losing any functionality for them by doing explicit updates at the Tcl level.
+
+    @param object_type The type we're updating.
+    @param object_id The id of the object we're updating.
+    @param attributes The new attribute values for the object in array get format.
 } {
     array set attributes_array $attributes
 

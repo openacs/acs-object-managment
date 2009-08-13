@@ -30,8 +30,8 @@ list::create \
             label "[_ acs-object-management.object_type]"
             orderby "object_type"
         }
-        delete {
-            label "Delete"
+        action {
+            label "[_ acs-object-management.Action]"
             display_template "<a href=\"@dtypes.delete_url@\">delete</a>"
         }
 

@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <message_catalog package_key="acs-object-management" locale="en_US" charset="ISO-8859-1">
   <msg key="acs_object_types_admin">ACS Object Types Management</msg>
-  <msg key="add">Add</msg>
+  <msg key="Action">Action</msg>
+  <msg key="add">add</msg>
   <msg key="add_attribute">Add an attribute</msg>
+  <msg key="add_checked_attributes">Add checked attributes</msg>
   <msg key="add_element">Add a Form element</msg>
   <msg key="add_form">Add a Form</msg>
   <msg key="add_type">Add a Type</msg>
@@ -17,6 +19,7 @@
   <msg key="attribute_pname_help">Name of attribute displayed in forms.</msg>
   <msg key="attribute_pplural_help">Plural form of pretty name.</msg>
   <msg key="attributes">Attributes</msg>
+  <msg key="available_attributes">Available Attributes</msg>
   <msg key="code_export">Export code to recreate dynamic types and forms</msg>
   <msg key="code_necessary">Tcl code to recreate selected dynamic types and forms</msg>
   <msg key="content">Content</msg>
@@ -26,6 +29,7 @@
   <msg key="Delete">Delete</msg>
   <msg key="datatype">Datatype</msg>
   <msg key="datatype_help"></msg>
+  <msg key="delete_checked_attributes">Delete checked attributes</msg>
   <msg key="dynamic_types">Dynamic Types</msg>
   <msg key="edit_form">Edit Form Name</msg>
   <msg key="element_name_help">Chose the attrbiute for this widget.</msg>
@@ -60,6 +64,7 @@
   <msg key="supertype">Supertype</msg>
   <msg key="unable_to_retrieve_param">unable to retrieve widget parameter %name% for attribute %attribute_id% - returning &quot;&quot; as parameter value</msg>
   <msg key="view">View</msg>
+  <msg key="view_attributes">View Attributes</msg>
   <msg key="views">Views</msg>
   <msg key="widget">Widget</msg>
   <msg key="widget_default">-- Default Widget --</msg>

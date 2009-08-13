@@ -72,7 +72,8 @@ ad_proc -public object_type::delete {
         [list drop_table_p $drop_table_p] \
         [list drop_children_p $drop_children_p]]
     package_exec_plsql -var_list $var_list acs_object_type drop_type
-    db_flush_cache -cache_pool acs_metadata -cache_key_pattern ${object_type}::*
+    object_type::flush_cache -object_type $object_type
+    object_view::flush_cache -object_view *
 }
 
 ad_proc -public object_type::get {
@@ -96,7 +97,7 @@ ad_proc -public object_type::get {
     </ul>
 } {
     upvar 1 $array row
-    db_1row -cache_pool acs_metadata -cache_key ${object_type}::get \
+    db_1row -cache_pool acs_metadata -cache_key t::${object_type}::get \
         select_object_type_info {} -column_array row
 }
 
@@ -113,7 +114,7 @@ ad_proc object_type::get_root_view {
     -object_type:required
 } {
 } {
-    return [db_string -cache_pool acs_metadata -cache_key ${object_type}::get_root_view \
+    return [db_string -cache_pool acs_metadata -cache_key t::${object_type}::get_root_view \
       select_root_view {}]
 }
 
@@ -154,7 +155,7 @@ ad_proc -private object_type::supertypes {
 
     @author Lee Denison (lee@thaum.net)
 } {
-    return [db_list -cache_pool acs_metadata -cache_key ${subtype}::supertypes supertypes {}]
+    return [db_list -cache_pool acs_metadata -cache_key t::${subtype}::supertypes supertypes {}]
 }
 
 ad_proc object_type::get_attribute_names {
@@ -162,6 +163,13 @@ ad_proc object_type::get_attribute_names {
 } {
     Return a list of attribute names declared for the given object type.
 } {
-    return [db_list -cache_pool acs_metadata -cache_key ${object_type}::attribute_names \
+    return [db_list -cache_pool acs_metadata -cache_key t::${object_type}::attribute_names \
         select_attribute_names {}]
+}
+
+ad_proc -public object_type::flush_cache {
+    -object_type:required
+} {
+} {
+    db_flush_cache -cache_pool acs_metadata -cache_key_pattern t::${object_type}::*
 }

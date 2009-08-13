@@ -2,6 +2,6 @@
 
 <p>
 
-Really delete attribute "@attribute.pretty_name@"?
+Really delete view "@view.pretty_name@"?
 
 <formtemplate id="delete"></formtemplate>

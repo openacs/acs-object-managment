@@ -10,4 +10,19 @@
     </querytext>
   </fullquery>
 
+  <fullquery name="object_type::view::delete.delete_object_view">
+    <querytext>
+      delete from acs_object_views
+      where object_view = :object_view
+    </querytext>
+  </fullquery>
+
+  <fullquery name="object_type::view::get.get_object_view">
+    <querytext>
+      select *
+      from acs_object_views
+      where object_view = :object_view
+    </querytext>
+  </fullquery>
+
 </queryset>

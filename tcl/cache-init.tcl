@@ -1,6 +1,8 @@
 ad_library {
 
-    Initialization cache for object metadata operations
+    Initialization cache for object metadata operations.  Modify the size by
+    changing the value of the package parameter DBCacheSize and restarting
+    your server.
 
     @creation-date 30 June 2009
     @author Don Baccus (dhogaza@pacifier.com)
