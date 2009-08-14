@@ -5,7 +5,7 @@ ad_page_contract {
     @cvs-id $Id$
 
 } {
-    {object_type:notnull,sql_identifier}
+    object_type:notnull,sql_identifier
 }
 
 object_type::get -object_type $object_type -array type_info
@@ -15,6 +15,7 @@ set context [list [list . "Dynamic Types"] $page_title]
 
 list::create \
     -name attributes \
+    -caption [_ acs-object-management.attributes] \
     -multirow attributes \
     -key attribute_id \
     -pass_properties {
@@ -50,6 +51,7 @@ db_multirow -cache_pool acs_metadata -cache_key t::${object_type}::get_attribute
 
 list::create \
     -name inherited_attributes \
+    -caption [_ acs-object-management.inherited_attributes] \
     -multirow inherited_attributes \
     -key attribute_id \
     -elements {
@@ -74,6 +76,7 @@ db_multirow -cache_pool acs_metadata -cache_key t::${object_type}::get_inherited
 
 list::create \
     -name views \
+    -caption [_ acs-object-management.views] \
     -multirow views \
     -key object_view \
     -actions [list "[_ acs-object-management.add_view]" [export_vars -base view-add {object_type}] "[_ acs-object-management.add_view]"] \

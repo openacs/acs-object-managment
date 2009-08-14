@@ -15,6 +15,7 @@ set context [list $page_title]
 
 list::create \
     -name dtypes \
+    -caption $page_title \
     -multirow dtypes \
     -key object_type \
     -actions [list "[_ acs-object-management.add_type]" [export_vars -base dtype-add] "[_ acs-object-management.add_type]"] \

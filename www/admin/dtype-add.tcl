@@ -5,7 +5,6 @@ ad_page_contract {
     @creation-date 2009-07-20
 
     Modified from dynamic types.
-} {
 }
 
 set page_title [_ acs-object-management.create_type]

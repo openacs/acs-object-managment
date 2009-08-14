@@ -5,8 +5,8 @@ ad_page_contract {
     @cvs-id $Id$
 
 } {
-    {attribute_id:optional}
-    {object_type:notnull,sql_identifier}
+    attribute_id:optional
+    object_type:notnull,sql_identifier
 }
 
 object_type::get -object_type $object_type -array type_info

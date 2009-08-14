@@ -5,7 +5,7 @@ ad_page_contract {
     @cvs-id $Id$
 
 } {
-    {object_view:notnull,sql_identifier}
+    object_view:notnull,sql_identifier
 }
 
 object_type::view::get -object_view $object_view -array view_info
@@ -20,6 +20,7 @@ set return_url [ad_conn url]?[ad_conn query]
 
 list::create \
     -name view_attributes \
+    -caption [_ acs-object-management.view_attributes] \
     -multirow view_attributes \
     -key attribute_id \
     -pass_properties {
@@ -57,6 +58,7 @@ db_multirow -cache_pool acs_metadata -cache_key v::${object_view}::get_view_attr
 
 list::create \
     -name available_attributes \
+    -caption [_ acs-object-management.available_attributes] \
     -multirow available_attributes \
     -key attribute_id \
     -bulk_actions [list [_ acs-object-management.add_checked_attributes] view-attributes-add [_ acs-object-management.add_checked_attributes]] \
