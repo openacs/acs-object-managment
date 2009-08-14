@@ -4,6 +4,12 @@ ad_library {
     changing the value of the package parameter DBCacheSize and restarting
     your server.
 
+    Cache keys in the object Tcl API have the following form:
+
+    t::object_type::query_name For all queries dealing with the specified object type.
+    v::object_view::query_name For all queries dealing with the specified object view.
+    o::object_id::query_name For all queries dealing with the specified object.
+
     @creation-date 30 June 2009
     @author Don Baccus (dhogaza@pacifier.com)
     @cvs-id $Id$

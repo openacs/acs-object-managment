@@ -24,6 +24,35 @@ ad_proc -public object_type::new {
     {-dynamic_p t}
     -attributes
 } {
+
+    Create a new object type, with an initial set of attributes.  Optionally create
+    the type's SQL table and type attribute SQL columns.
+
+    For detailed information on the various parameters to this procedure, please
+    read the developer's documentation for the SQL procedures which do the actual
+    type and attribute creation.
+
+    @param object_type The name of the type to create.
+    @param pretty_name The human-readable name of the type to create.
+    @param pretty_plural Plural human-readable name of the type to create.
+    @param supertype Supertype of the type to create (default "acs_object").
+    @param table_name Optional name of the associated SQL table for the new type.  Default
+           will be the name of the new type appended with "_t".
+    @param package_name Optional name of the associated SQL package used to manipulate
+           objects of this type.  Note: the acs-object-management does it with a Tcl API.
+    @param abstract_p If true, the type's abstract (no attributes).
+    @param type_extension_table Optional table to extend acs_object_types information for
+           the new type.  Rarely used.  Probably shouldn't be used.
+    @param name_method Optional name of a SQL procedure which returns the name of an object
+           of this type.
+    @param create_table_p If true, create the table and attribute columns automatically.
+           Defaults to false for backwards compatibility with existing ways of doing things,
+           but having this procedure create the SQL table and columns is commended and
+           convenient.
+    @param dynamic_p If true, it's a dynamic type that can be manipulated by the admin UI.
+    @param attributes A list of attributes and their qualifiers of the form:
+           \{ attr_name \{ (qualifiers in array get format) \}
+           \{ attr_name_2 \{ (qualifers) \}
 } {
     set var_list [list \
         [list object_type $object_type] \
@@ -52,8 +81,8 @@ ad_proc -public object_type::new {
                     lappend params -$param
                     lappend params $value
                 }
+                eval [concat object_type::attribute::new $params]
             }
-            eval [concat object_type::attribute::new $params]
         }
         package_exec_plsql \
             -var_list [list [list object_type $object_type]] acs_object_type refresh_view
@@ -66,6 +95,15 @@ ad_proc -public object_type::delete {
     {-drop_table_p f}
     {-drop_children_p f}
 } {
+
+    Delete an object type, and optionally its subtypes and any other tables or views
+    which depend on it.
+
+    @param object_type The object type to delete.
+    @param cascade_p If true, append "cascade" to the SQL drop table command.
+    @param drop_table_p If true (recommended) drop the table associated with the object type.
+    @param drop_children_p If true (recommended) drop all subtypes dependent on this type.
+} {
     set var_list [list \
         [list object_type $object_type] \
         [list cascade_p $cascade_p] \
@@ -73,7 +111,6 @@ ad_proc -public object_type::delete {
         [list drop_children_p $drop_children_p]]
     package_exec_plsql -var_list $var_list acs_object_type drop_type
     object_type::flush_cache -object_type $object_type
-    object_view::flush_cache -object_view *
 }
 
 ad_proc -public object_type::get {
@@ -95,6 +132,9 @@ ad_proc -public object_type::get {
       <li>type_extension_table,
       <li>dynamic_p
     </ul>
+
+    @param object_type The object type whose metadata should be returned.
+    @param array The name of the output array to hold the metadata.
 } {
     upvar 1 $array row
     db_1row -cache_pool acs_metadata -cache_key t::${object_type}::get \
@@ -105,6 +145,13 @@ ad_proc -public object_type::get_element {
     -object_type:required
     -element:required
 } {
+
+    Return one metadata element for an object type, i.e. pretty name etc.
+
+    @param object_type The object type whose metadata should be returned.
+    @param element The name of the element desired.
+
+    @return The value for the metadata element for the given object type.
 } {
     object_type::get -object_type $object_type -array object_type_info
     return $object_type_info($element)
@@ -113,6 +160,15 @@ ad_proc -public object_type::get_element {
 ad_proc object_type::get_root_view {
     -object_type:required
 } {
+
+    Return the name of the root view for the given object type.  The root view is created by
+    object_type::new (actually the underlying SQL procedure create_type) and contains all
+    attributes declared for the type and its supertypes, along with the innermost
+    tree_sortkey for PG types, and the object id.
+
+    @param object_type The type whose root view should be returned.
+
+    @return The name of the root view for the type.
 } {
     return [db_string -cache_pool acs_metadata -cache_key t::${object_type}::get_root_view \
       select_root_view {}]
@@ -170,6 +226,16 @@ ad_proc object_type::get_attribute_names {
 ad_proc -public object_type::flush_cache {
     -object_type:required
 } {
+    Flush the cache of all query resultsets which depend on the object type.  See cache-init.tcl
+    for the cache key naming scheme which must be followed.  This very aggressively flushes
+    all view and object queries (since the related object_type isn't tracked in the cache_key)
+    but since type creation and modification operations are relatively infrequent, there's
+    not much motifivation to be clever about it.
+
+    @param object_type The object type whose query resultsets should be flushed from the
+           cache.
 } {
     db_flush_cache -cache_pool acs_metadata -cache_key_pattern t::${object_type}::*
+    db_flush_cache -cache_pool acs_metadata -cache_key_pattern v::*
+    db_flush_cache -cache_pool acs_metadata -cache_key_pattern o::*
 }

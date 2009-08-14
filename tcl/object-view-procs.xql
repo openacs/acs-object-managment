@@ -17,6 +17,12 @@
     </querytext>
   </fullquery>
 
+  <fullquery name="object_type::view::delete.drop_view">
+    <querytext>
+      drop view :object_view
+    </querytext>
+  </fullquery>
+
   <fullquery name="object_type::view::get.get_object_view">
     <querytext>
       select *

@@ -158,8 +158,10 @@ ad_proc object::new {
 
     if { [info exists attributes] } {
         array set attributes_array $attributes
-    } else {
+    } elseif { [info exists array] } {
         upvar $array attributes_array
+    } else {
+        array set attributes_array {}
     }
 
     set attributes_array(object_type) $object_type
