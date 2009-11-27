@@ -10,7 +10,7 @@ ad_page_contract {
 }
 
 foreach one_attribute_id $attribute_id {
-    object_type::view::attribute::copy -to_object_view $object_view -attribute_id $one_attribute_id
+    object_view::attribute::copy -to_object_view $object_view -attribute_id $one_attribute_id
 }
 
 ad_returnredirect $return_url

@@ -22,7 +22,7 @@
   <fullquery name="object_type::get_root_view.select_root_view">
     <querytext>
       select object_view
-      from acs_object_views
+      from acs_views
       where  object_type = :object_type
         and root_view_p
     </querytext>

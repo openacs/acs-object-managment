@@ -8,13 +8,12 @@ ad_page_contract {
     object_view:notnull,sql_identifier
 }
 
-object_type::view::get -object_view $object_view -array view_info
+object_view::get -object_view $object_view -array view_info
 set object_type $view_info(object_type)
 
 set page_title $view_info(pretty_name)
 set context [list [list . "Dynamic Types"] \
-    [list [export_vars -base dtype \
-               {{object_type $view_info(object_type)}}] $view_info(object_type)] \
+    [list [export_vars -base object-type {object_type $view_info(object_type)}] $view_info(object_type)] \
     $page_title]
 set return_url [ad_conn url]?[ad_conn query]
 
@@ -25,7 +24,7 @@ list::create \
     -key attribute_id \
     -pass_properties {
         object_view
-    } \
+    } -actions [list [_ acs-object-management.manage_form] [export_vars -base form {object_view}] [_ acs-object-management.manage_form]] \
     -bulk_actions [list [_ acs-object-management.delete_checked_attributes] view-attributes-delete [_ acs-object-management.delete_checked_attributes]] \
     -bulk_action_export_vars {return_url object_view} \
     -elements {
@@ -33,7 +32,7 @@ list::create \
             label "[_ acs-object-management.pretty_name]"
             link_url_eval $attribute_url
         }
-        col_name {
+        view_attribute {
             label "[_ acs-object-management.attribute]"
         }
         object_type {
@@ -45,14 +44,16 @@ list::create \
         action {
             label "[_ acs-object-management.Action]"
             display_template "
-                <a href=\"@view_attributes.delete_url@\">
+                <a class=\"button\" href=\"@view_attributes.delete_url@\" title=\"[_ acs-object-management.delete]\">
                   [_ acs-object-management.delete]
-                </a>"
+                </a>
+            "
         }
     }
 
 db_multirow -cache_pool acs_metadata -cache_key v::${object_view}::get_view_attributes \
-    -extend {attribute_url delete_url} view_attributes get_view_attributes {} {
+    -extend {attribute_url delete_url manage_form_url} \
+    view_attributes get_view_attributes {} {
     set delete_url [export_vars -base view-attributes-delete {object_view return_url attribute_id}]
 }
 
@@ -67,7 +68,7 @@ list::create \
         pretty_name {
             label "[_ acs-object-management.pretty_name]"
         }
-        col_name {
+        view_attribute {
             label "[_ acs-object-management.attribute]"
         }
         object_type {
@@ -79,17 +80,16 @@ list::create \
         action {
             label "[_ acs-object-management.Action]"
             display_template "
-                <a href=\"@available_attributes.add_url@\">
+                <a class=\"button\" href=\"@available_attributes.add_url@\" title=\"[_ acs-object-management.add]\">
                   [_ acs-object-management.add]
                 </a>"
         }
     }
 
+set object_type $view_info(object_type)
 db_multirow -cache_pool acs_metadata -cache_key v::${object_view}::get_available_attributes \
     -extend {add_url} available_attributes get_available_attributes {} {
     set add_url [export_vars -base view-attributes-add {object_view attribute_id return_url}]
 }
 
-set add_form_url [export_vars -base form-ae {object_type}]
-set return_url [ad_return_url]
 ad_return_template

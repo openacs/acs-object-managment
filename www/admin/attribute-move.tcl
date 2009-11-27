@@ -1,7 +1,7 @@
 ad_page_contract {
     Change attribute sort order
 } {
-    attribute_id:integer,notnull
+    attribute_id:naturalnum
     object_type
     sort_order
     direction:notnull

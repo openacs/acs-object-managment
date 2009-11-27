@@ -3,6 +3,11 @@ alter table acs_datatypes add column_size text;
 alter table acs_datatypes add column_check_expr text;
 alter table acs_datatypes add column_output_function text;
 
+insert into acs_datatypes
+  (datatype, database_type)
+values
+  ('richtext', 'text');
+
 -- Making user and person dynamic can lead to a broken web site, so
 -- for now at least I won't do it.  Code using these types have assumptions
 -- about the existence of certain attributes, and of course deleting them
@@ -41,7 +46,9 @@ comment on column acs_datatypes.column_size is '
 ';
 
 comment on column acs_datatypes.column_check_expr is '
-  Optional check constraint expression to declare for the type_specific database column.
+  Optional check constraint expression to declare for the type_specific database column.  In
+  Oracle, for instance, the abstract "boolean" type is declared "text", with a column
+  check expression to restrict the values to "f" and "t".
 ';
 
 comment on column acs_datatypes.column_output_function is '
@@ -55,186 +62,214 @@ comment on column acs_datatypes.column_output_function is '
 -- it possible to write a high-level type specification that works in both Oracle and PG.
 
 -- DRB: add double bigint etc if Oracle supports them
+begin;
 
-update acs_datatypes
-set database_type = 'varchar',
-  column_size = '4000'
-where datatype = 'string';
+  update acs_datatypes
+  set database_type = 'varchar',
+    column_size = '250'
+  where datatype = 'url';
 
-update acs_datatypes
-set database_type = 'boolean'
-where datatype = 'boolean';
+  update acs_datatypes
+  set database_type = 'varchar',
+    column_size = '4000'
+  where datatype = 'string';
 
-update acs_datatypes
-set database_type = 'numeric',
-  column_size = '10,2'
-where datatype = 'number';
+  update acs_datatypes
+  set database_type = 'boolean'
+  where datatype = 'boolean';
 
-update acs_datatypes
-set database_type = 'integer'
-where datatype = 'integer';
+  update acs_datatypes
+  set database_type = 'numeric',
+    column_size = '10,2'
+  where datatype = 'number';
 
-update acs_datatypes
-set database_type = 'money'
-where datatype = 'money';
+  update acs_datatypes
+  set database_type = 'integer'
+  where datatype = 'integer';
 
-update acs_datatypes
-set database_type = 'timestamp'
-where datatype = 'date';
+  update acs_datatypes
+  set database_type = 'money'
+  where datatype = 'money';
 
-update acs_datatypes
-set database_type = 'timestamp'
-where datatype = 'timestamp';
+  update acs_datatypes
+  set database_type = 'timestamp'
+  where datatype = 'date';
 
-update acs_datatypes
-set database_type = 'timestamp'
-where datatype = 'time_of_day';
+  update acs_datatypes
+  set database_type = 'timestamp'
+  where datatype = 'timestamp';
 
-update acs_datatypes
-set database_type = 'varchar',
-  column_size = '100'
-where datatype = 'enumeration';
+  update acs_datatypes
+  set database_type = 'timestamp'
+  where datatype = 'time_of_day';
 
-update acs_datatypes
-set database_type = 'varchar',
-  column_size = 200
-where datatype = 'email';
+  update acs_datatypes
+  set database_type = 'varchar',
+    column_size = '100'
+  where datatype = 'enumeration';
 
-update acs_datatypes
-set database_type = 'varchar',
-  column_size = 200
-where datatype = 'file';
+  update acs_datatypes
+  set database_type = 'varchar',
+    column_size = 200
+  where datatype = 'email';
 
-update acs_datatypes
-set database_type = 'text'
-where datatype = 'text';
+  update acs_datatypes
+  set database_type = 'varchar',
+    column_size = 200
+  where datatype = 'file';
 
-update acs_datatypes
-set database_type = 'varchar',
-  column_size = 100
-where datatype = 'keyword';
+  update acs_datatypes
+  set database_type = 'text'
+  where datatype = 'text';
 
-update acs_datatypes
-set column_output_function = 'acs_datatype__timestamp_output_function'
-where datatype = 'date';
+  update acs_datatypes
+  set database_type = 'varchar',
+    column_size = 100
+  where datatype = 'keyword';
 
-update acs_datatypes
-set column_output_function = 'acs_datatype__timestamp_output_function'
-where datatype = 'timestamp';
+  update acs_datatypes
+  set column_output_function = 'acs_datatype__date_output_function'
+  where datatype = 'date';
 
-update acs_datatypes
-set column_output_function = 'acs_datatype__timestamp_output_function'
-where datatype = 'time_of_day';
+  update acs_datatypes
+  set column_output_function = 'acs_datatype__timestamp_output_function'
+  where datatype = 'timestamp';
+
+  update acs_datatypes
+  set column_output_function = 'acs_datatype__timestamp_output_function'
+  where datatype = 'time_of_day';
+end;
+
+create or replace function acs_datatype__date_output_function(text)
+returns text as '
+declare
+  p_attribute_name alias for $1;
+begin
+  return ''to_char('' || p_attribute_name || '', ''''YYYY-MM-DD'''')'';
+end;' language 'plpgsql';
 
 create or replace function acs_datatype__timestamp_output_function(text)
 returns text as '
 declare
   p_attribute_name alias for $1;
 begin
-  return ''to_char('' || p_attribute_name || '', ''''YYYY-MM-DD HH24:MI'''')'';
+  return ''to_char('' || p_attribute_name || '', ''''YYYY-MM-DD HH24:MI:SS'''')'';
 end;' language 'plpgsql';
 
 -- New tables to model object-based views.  Since view names must be unique in SQL
 -- we force them to be unique in our datamodel, too (rather than only unique to the
 -- object type). 
 
-create table acs_object_views (
+create table acs_views (
   object_view    text
-                 constraint acs_object_views__pk
+                 constraint acs_views__pk
                  primary key,
   object_type    text
-                 constraint acs_object_views_object_type_fk
+                 constraint acs_views_object_type_fk
                  references acs_object_types
                  on delete cascade,
   pretty_name    text
-                 constraint acs_object_views_pretty_name_nn
+                 constraint acs_views_pretty_name_nn
                  not null,
   root_view_p    boolean default 'f'
-                 constraint acs_object_views_root_view_p_nn
+                 constraint acs_views_root_view_p_nn
                  not null
 );
 
-comment on table acs_object_views is '
+comment on table acs_views is '
   Track information on object type-based views, including the initial view created for
   an object type
 ';
 
-comment on column acs_object_views.object_view is '
+comment on column acs_views.object_view is '
   The name of the view.  The initial view for an object type is given the name
   "object_type_name_v".  If the object type the view references is deleted, the acs_view
   will be dropped, too.
 ';
 
-comment on column acs_object_views.object_type is '
+comment on column acs_views.object_type is '
   The object type this view is built from.
 ';
 
-comment on column acs_object_views.pretty_name is '
+comment on column acs_views.pretty_name is '
   Pretty name for this view
 ';
 
-create table acs_object_view_attributes (
+create table acs_view_attributes (
   attribute_id   integer
-                 constraint acs_object_view_attributes_attribute_id_fk
+                 constraint acs_view_attributes_attribute_id_fk
                  references acs_attributes
                  on delete cascade,
-  col_name       text,
+  view_attribute       text,
   object_view    text
-                 constraint acs_object_view_attributes_object_view_fk
-                 references acs_object_views(object_view)
+                 constraint acs_view_attributes_object_view_fk
+                 references acs_views(object_view)
                  on delete cascade,
   pretty_name    text
-                 constraint acs_object_views_pretty_name_nn
+                 constraint acs_views_pretty_name_nn
                  not null,
   sort_order     integer
-                 constraint acs_object_views_sort_order
+                 constraint acs_views_sort_order
                  not null,
   col_expr       text
-                 constraint acs_object_view_attributes_type_col_spec_nn
+                 constraint acs_view_attributes_type_col_spec_nn
                  not null,
-  constraint acs_object_view_attributes_pk primary key (object_view, col_name)
+  constraint acs_view_attributes_pk primary key (object_view, attribute_id)
 );
 
-comment on table acs_object_view_attributes is '
+comment on table acs_view_attributes is '
   Track information on view attributes.  This extends the acs_attributes table with
   view-specific attribute information.  If the view or object type attribute referenced
   by the view attribute is deleted, the view attribute will be, too.
 ';
 
-comment on column acs_object_view_attributes.attribute_id is '
+comment on column acs_view_attributes.attribute_id is '
   The acs_attributes row we are augmenting with view-specific information.  This is not
   used as the primary key because multiple views might use the same acs_attribute.
 ';
 
-comment on column acs_object_view_attributes.col_name is '
+comment on column acs_view_attributes.view_attribute is '
   The name assigned to this column in the view.  Usually it is the acs_attribute name,
   but if multiple attributes have the same name, they are disambiguated with suffixes
   of the form _N.
 ';
 
-comment on column acs_object_view_attributes.object_view is '
+comment on column acs_view_attributes.object_view is '
   The name of the view this attribute is being declared for.
 ';
 
-comment on column acs_object_view_attributes.pretty_name is '
+comment on column acs_view_attributes.pretty_name is '
   The pretty name of the view.
 ';
 
-comment on column acs_object_view_attributes.sort_order is '
+comment on column acs_view_attributes.sort_order is '
   The order of display when shown to a user.  A bit odd to have it here, but
   the original object attributes have a sort_order defined, so for consistency we will
   do the same for view attributes.
 ';
 
-comment on column acs_object_view_attributes.col_expr is '
+comment on column acs_view_attributes.col_expr is '
   The expression used to build the column.  Usually just the acs_attribute name, but certain
   datatypes might call a function on the attribute value (i.e. "to_char()" for timestamp
   types).
 ';
 
-select define_function_args('acs_object_view__create_sql_view','object_view');
+select define_function_args('acs_view__drop_sql_view','object_view');
 
-create or replace function acs_object_view__create_sql_view (varchar)
+create or replace function acs_view__drop_sql_view (varchar)
+returns integer as '
+declare
+  p_view                               alias for $1;  
+begin
+  if table_exists(p_view) then
+    execute ''drop view '' || p_view;
+  end if;
+  return 0;
+end;' language 'plpgsql';
+
+select define_function_args('acs_view__create_sql_view','object_view');
+
+create or replace function acs_view__create_sql_view (varchar)
 returns integer as '
 declare
   p_view                               alias for $1;  
@@ -252,7 +287,7 @@ begin
   end if;
 
   if not exists (select 1
-                 from acs_object_views
+                 from acs_views
                  where object_view = p_view) then
     raise exception ''No object type named "%" exists'',p_view;
   end if;
@@ -261,11 +296,11 @@ begin
   v_joins := '''';
   v_first_p := ''t'';
   v_tree_sortkey_found_p := ''f'';
-  v_cols := ''acs_objects.object_id'';
+  v_cols := ''acs_objects.object_id as '' || p_view || ''_id'';
 
   for v_join_rec in select ot2.object_type, ot2.table_name, ot2.id_column,
                     tree_level(ot2.tree_sortkey) as level
-                  from acs_object_types ot1, acs_object_types ot2, acs_object_views ov
+                  from acs_object_types ot1, acs_object_types ot2, acs_views ov
                   where ov.object_view = p_view
                     and ot1.object_type = ov.object_type
                     and ot1.tree_sortkey between ot2.tree_sortkey and tree_right(ot2.tree_sortkey)
@@ -297,12 +332,12 @@ begin
     end if;
   end loop;
 
-  for v_attr_rec in select col_name, col_expr
-                    from acs_object_view_attributes
+  for v_attr_rec in select view_attribute, col_expr
+                    from acs_view_attributes
                     where object_view = p_view
                     order by sort_order
   loop
-    v_cols := v_cols || '','' || v_attr_rec.col_expr || '' as '' || v_attr_rec.col_name;
+    v_cols := v_cols || '','' || v_attr_rec.col_expr || '' as '' || v_attr_rec.view_attribute;
   end loop;
 
   if v_joins <> '''' then
@@ -334,7 +369,7 @@ declare
   v_attr_rec                           record;
   v_type_rec                           record;
   v_dupes                              integer;
-  v_col_name                           text;
+  v_view_attribute                           text;
   v_col_expr                           text;
   v_sort_order                         integer;
   v_view                               text;
@@ -348,9 +383,9 @@ begin
 
   v_view := p_type || ''_v'';
 
-  delete from acs_object_views where object_view = v_view;
+  delete from acs_views where object_view = v_view;
 
-  insert into acs_object_views
+  insert into acs_views
     (object_view, object_type, pretty_name, root_view_p)
   select v_view, p_type, pretty_name, ''t''
   from acs_object_types
@@ -375,8 +410,8 @@ begin
                         and a.datatype = d.datatype
     loop
 
-      v_col_name := v_attr_rec.attribute_name;
-      v_col_expr := v_type_rec.table_name || ''.'' || v_col_name;
+      v_view_attribute := v_attr_rec.attribute_name;
+      v_col_expr := v_type_rec.table_name || ''.'' || v_view_attribute;
 
       if v_attr_rec.column_output_function is not null then
         execute ''select '' || v_attr_rec.column_output_function || ''('''''' || v_col_expr ||
@@ -396,13 +431,13 @@ begin
                                            between tree_left(ot2.tree_sortkey)
                                            and tree_right(ot2.tree_sortkey));
        if v_dupes > 0 then
-         v_col_name := v_col_name || ''_'' || substr(to_char(v_dupes, ''9''),2,1);
+         v_view_attribute := v_view_attribute || ''_'' || substr(to_char(v_dupes, ''9''),2,1);
        end if;
 
-       insert into acs_object_view_attributes
-         (attribute_id, col_name, object_view, pretty_name, sort_order, col_expr)
+       insert into acs_view_attributes
+         (attribute_id, view_attribute, object_view, pretty_name, sort_order, col_expr)
        values
-         (v_attr_rec.attribute_id, v_col_name, v_view, v_attr_rec.pretty_name, v_sort_order,
+         (v_attr_rec.attribute_id, v_view_attribute, v_view, v_attr_rec.pretty_name, v_sort_order,
           v_col_expr);
 
        v_sort_order := v_sort_order + 1;
@@ -410,7 +445,7 @@ begin
     end loop;
   end loop;
 
-  perform acs_object_view__create_sql_view(p_type || ''_v'');
+  perform acs_view__create_sql_view(p_type || ''_v'');
 
   -- Now fix all subtypes (really only necessary for the attributes view when an attribute
   -- has been added or dropped, but there is no harm in doing it always).  The supertype
@@ -568,7 +603,7 @@ declare
   p_size                   alias for $16;
   p_null_p                 alias for $17;
   p_references             alias for $18;
-  p_check_expr           alias for $19;
+  p_check_expr             alias for $19;
   p_column_spec            alias for $20;
 
   v_sort_order            acs_attributes.sort_order%TYPE;

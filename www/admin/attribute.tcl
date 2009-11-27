@@ -17,14 +17,14 @@ if {[info exists attribute_id]} {
     set page_title "[_ acs-object-management.attribute_add]"
 }
 
-set context [list [list [export_vars -base dtype {object_type}] $type_info(pretty_name)] $page_title]
+set context [list [list [export_vars -base object-type {object_type}] $type_info(pretty_name)] $page_title]
 set table_name $type_info(table_name)
 set datatype_options [db_list_of_lists get_datatypes {}]
 
 ad_form -name attribute_form -export {object_type} -form {
     {attribute_id:key}
     {attribute_name:text {label "[_ acs-object-management.attribute_name]"} {html {size 30 maxlength 100}} {help_text "[_ acs-object-management.attribute_name_help]"}}
-    {pretty_name:text,optional {label "[_ acs-object-management.pretty_name]"} {html {size 30 maxlength 100}} {help_text "[_ acs-object-management.attribute_pname_help]"}}
+    {pretty_name:text {label "[_ acs-object-management.pretty_name]"} {html {size 30 maxlength 100}} {help_text "[_ acs-object-management.attribute_pname_help]"}}
     {pretty_plural:text,optional {label "[_ acs-object-management.pretty_plural]"} {html {size 30 maxlength 100}} {help_text "[_ acs-object-management.attribute_pplural_help]"}}
 }
 
@@ -54,12 +54,6 @@ ad_form -extend -name attribute_form -form {
 } -edit_request {
     db_1row attribute_data {}
 } -on_submit {
-    if {[empty_string_p $pretty_name]} {
-	foreach word [split $attribute_name] {
-	    lappend pretty_name [string totitle $word]
-	}
-	set pretty_name [join $pretty_name]
-    }
     set default_locale [lang::system::site_wide_locale]
 } -new_data {
     object_type::attribute::new \
@@ -82,12 +76,7 @@ ad_form -extend -name attribute_form -form {
     lang::message::register -update_sync $default_locale acs-translations "${object_type}_$attribute_name" $pretty_name
     lang::message::register -update_sync $default_locale acs-translations "${object_type}_${attribute_name}s" $pretty_plural
 
-    util_memoize_flush "dtype::form::metadata::widgets_list -no_cache -object_type \"$object_type\" -dform \"implicit\" -exclude_static_p 0"
-    util_memoize_flush "dtype::form::metadata::widgets_list -no_cache -object_type \"$object_type\" -dform \"implicit\" -exclude_static_p 1"
-
-    util_memoize_flush_regexp "dtype::form::metadata::params_list -no_cache -object_type \"$object_type\".*"
-
-    ad_returnredirect [export_vars -base dtype {object_type}]
+    ad_returnredirect [export_vars -base object-type {object_type}]
     ad_script_abort
 }
 

@@ -10,7 +10,7 @@ ad_page_contract {
 }
 
 foreach one_attribute_id $attribute_id {
-    object_type::view::attribute::delete \
+    object_view::attribute::delete \
         -object_view $object_view \
         -attribute_id $one_attribute_id
 }

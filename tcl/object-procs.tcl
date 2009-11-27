@@ -11,6 +11,15 @@ ad_library {
 
 namespace eval object {}
 
+ad_proc -private object::quote_attribute_values {
+    -array:required
+} {
+    upvar $array attributes
+    foreach attribute [array names attributes] {
+        set attributes($attribute) "'[DoubleApos $attributes($attribute)]'"
+    }
+}
+
 ad_proc -private object::split_attributes {
     -object_type:required
     -attributes_array:required
@@ -97,7 +106,8 @@ ad_proc -private object::new_inner {
         if { [llength [array names supertype_attributes]] > 0 } {
             # Internal error check - if we're creating an acs_object, it has no supertype
             # therefore should have no supertype_attributes.
-            return -code "Internal error - supertype_attributes should be empty"
+            ns_log Error "supertype_attributes should be empty, value: [array get supertype_attributes]"
+            return -code error "Internal error - supertype_attributes should be empty"
         }
     }
 
@@ -107,7 +117,7 @@ ad_proc -private object::new_inner {
         foreach name [array names our_attributes] {
             lappend name_list $name
             set __$name $our_attributes($name)
-            lappend value_name_list :__$name
+            lappend value_list [set __$name]
         }
 
         db_dml insert_object {}
@@ -166,14 +176,7 @@ ad_proc object::new {
 
     set attributes_array(object_type) $object_type
 
-    if { [ad_conn isconnected] } {
-	if { ![exists_and_not_null attributes_array(creation_user)] } {
-	    set attributes_array(creation_user) [ad_conn user_id]
-	} 
-	if { ![exists_and_not_null attributes_array(creation_ip)] } {
-	    set attributes_array(creation_ip) [ad_conn peeraddr]
-	}
-    }
+    object::quote_attribute_values -array attributes_array
 
     db_transaction {
         set object_id [object::new_inner \
@@ -182,6 +185,34 @@ ad_proc object::new {
                           -attributes [array get attributes_array]]
     }
     return $object_id
+}
+
+ad_proc object::new_from_form {
+    -object_view:required
+} {
+} {
+    set object_id [template::element::get_value $object_view \
+                      [template::element::get_value $object_view __key]]
+
+    form::get_attributes \
+        -object_view $object_view \
+        -array attributes
+ns_log Notice "Huh? attributes: [array get attributes]"
+
+    set object_type [object_view::get_element \
+                        -object_view $object_view \
+                        -element object_type]
+
+    set attributes(creation_user) "'[ad_conn user_id]'"
+    set attributes(creation_ip) "'[ad_conn peeraddr]'"
+    set attributes(object_type) "'$object_type'"
+
+    db_transaction {
+        object::new_inner \
+            -object_type $object_type \
+            -object_id $object_id \
+            -attributes [array get attributes]
+    }
 }
 
 ad_proc object::delete {
@@ -272,8 +303,11 @@ ad_proc object::update_inner {
             -object_id $object_id \
             -attributes [array get supertype_attributes]
     } else {
-        if { [llength [array name subtype_attributes]] > 0 } {
-            # error ...
+        if { [llength [array names supertype_attributes]] > 0 } {
+            # Internal error check - if we're creating an acs_object, it has no supertype
+            # therefore should have no supertype_attributes.
+            ns_log Error "supertype_attributes should be empty, value: [array get supertype_attributes]"
+            return -code error "Internal error - supertype_attributes should be empty"
         }
     }
 
@@ -281,10 +315,10 @@ ad_proc object::update_inner {
 
         foreach name [array names our_attributes] {
             set __$name $our_attributes($name)
-            lappend name_value_list "$name = :__$name"
+            lappend name_value_list "$name = [set __$name]"
         }
 
-        if { [llength $name_value_list] > 0 } {
+        if { [info exists name_value_list] } {
             db_dml update_object {}
         }
 
@@ -321,6 +355,8 @@ ad_proc object::update {
 	}
     }
 
+    object::quote_attribute_values -array attributes_array
+
     set object_type [object::get_object_type -object_id $object_id]
 
     db_transaction {
@@ -328,5 +364,31 @@ ad_proc object::update {
             -object_id $object_id \
             -object_type $object_type \
             -attributes [array get attributes_array]
+    }
+}
+
+ad_proc object::update_from_form {
+    -object_view:required
+} {
+} {
+    set object_id [template::element::get_value $object_view \
+                      [template::element::get_value $object_view __key]]
+
+    form::get_attributes \
+        -object_view $object_view \
+        -array attributes
+
+    set object_type [object_view::get_element \
+                        -object_view $object_view \
+                        -element object_type]
+
+    set attributes(modifying_user) "'[ad_conn user_id]'"
+    set attributes(modifying_ip) "'[ad_conn peeraddr]'"
+
+    db_transaction {
+        object::update_inner \
+            -object_id $object_id \
+            -object_type $object_type \
+            -attributes [array get attributes]
     }
 }

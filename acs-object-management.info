@@ -10,13 +10,13 @@
     <inherit-templates-p>f</inherit-templates-p>
     <auto-mount>acs-object-management</auto-mount>
 
-    <version name="0.2d" url="http://openacs.org/repository/download/apm/acs-object-management-0.2d.apm">
+    <version name="0.0.1d1" url="http://openacs.org/repository/download/apm/acs-object-management-0.0.1d1.apm">
         <owner url="mailto:dhogaza@pacifier.com">Don Baccus</owner>
         <summary>API to manage all things objecty</summary>
         <description format="text/plain">API and admin pages to create and edit object types.</description>
         <maturity>0</maturity>
 
-        <provides url="acs-object-management" version="0.2d"/>
+        <provides url="acs-object-management" version="0.0.1d1"/>
 
         <callbacks>
         </callbacks>

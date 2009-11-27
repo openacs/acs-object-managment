@@ -4,12 +4,9 @@
 
 <fullquery name="select_object_types">
   <querytext>
-
-    select object_type, pretty_name
+    select repeat('&nbsp;&nbsp;', tree_level(tree_sortkey)-1) || pretty_name, object_type
     from acs_object_types
-    where dynamic_p = 't'
-    $orderby_clause
-
+    order by tree_sortkey
   </querytext>
 </fullquery>
 

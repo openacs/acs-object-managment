@@ -6,7 +6,7 @@
       insert into $object_type_info(table_name)
         ([join $name_list ,])
       values
-        ([join $value_name_list ,])
+        ([join $value_list ,])
     </querytext>
   </fullquery>
 

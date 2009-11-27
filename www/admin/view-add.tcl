@@ -12,7 +12,7 @@ set context [list $page_title]
 
 ad_form -name view-add -export {object_type} -form {
     {object_view:keyword
-      {label {[_ acs-object-management.object_view]}}
+      {label {[_ acs-object-management.view]}}
       {html {size 30 maxlength 100}}
     }
     {pretty_name:text
@@ -20,12 +20,12 @@ ad_form -name view-add -export {object_type} -form {
       {html {size 30 maxlength 100}}
     }
 } -on_submit {
-    object_type::view::new \
+    object_view::new \
         -object_type $object_type \
         -object_view $object_view \
         -pretty_name $pretty_name 
 } -after_submit {
-    ad_returnredirect ./[export_vars -base dtype {object_type}]
+    ad_returnredirect ./[export_vars -base object-type {object_type}]
     ad_script_abort
 }
 

@@ -2,17 +2,16 @@ ad_library {
 
     Supporting procs for ACS Object Types
 
-    @author Yonatan Feldman (yon@arsdigita.com)
-    @creation-date August 13, 2000
+    @author Don Baccus (dhogaza@pacifier.com)
+    @creation-date Sept 13, 2009
     @cvs-id $Id$
 
 }
 
-namespace eval object_type {}
-namespace eval object_type::view {}
-namespace eval object_type::view::attribute {}
+namespace eval object_view {}
+namespace eval object_view::attribute {}
 
-ad_proc object_type::view::new {
+ad_proc object_view::new {
     -object_view:required
     -pretty_name:required
     -object_type:required
@@ -28,22 +27,25 @@ ad_proc object_type::view::new {
     @param object_type The object type the view's being built for.
 } {
     db_dml insert_object_view {}
+    set var_list [list [list object_view $object_view]]
+    package_exec_plsql -var_list $var_list acs_view create_sql_view
     object_type::flush_cache -object_type $object_type
 }
 
-ad_proc object_type::view::delete {
+ad_proc object_view::delete {
     -object_view:required
 } {
     Delete a view, both the metadata and SQL view.
 
     @param object_view The name of the view to delete.
 } {
-    object_type::view::flush_cache -object_view $object_view
+    object_view::flush_cache -object_view $object_view
     db_dml delete_object_view {}
-    db_dml drop_view {}
+    set var_list [list [list object_view $object_view]]
+    package_exec_plsql -var_list $var_list acs_view drop_sql_view
 }
 
-ad_proc object_type::view::get {
+ad_proc object_view::get {
     -object_view:required
     -array:required
 } {
@@ -58,7 +60,7 @@ ad_proc object_type::view::get {
         get_object_view {} -column_array local
 }
 
-ad_proc object_type::view::get_element {
+ad_proc object_view::get_element {
     -object_view:required
     -element:required
 } {
@@ -67,11 +69,11 @@ ad_proc object_type::view::get_element {
     @param object_view The object view whose metadata should be returned.
     @param element The name of the metadata element to return (pretty_name, etc).
 } {
-    object_type::view::get -object_view $object_view -array view
+    object_view::get -object_view $object_view -array view
     return $view($element)
 }
 
-ad_proc object_type::view::flush_cache {
+ad_proc object_view::flush_cache {
     -object_view:required
 } {
     Flush all queries dependent on a view.  This also flushes queries dependent on the
@@ -80,7 +82,7 @@ ad_proc object_type::view::flush_cache {
 
     @param object_view The view to flush.
 } {
-    object_type::flush_cache -object_type [object_type::view::get_element \
+    object_type::flush_cache -object_type [object_view::get_element \
                                               -object_view $object_view \
                                               -element object_type]
     db_flush_cache -cache_pool acs_metadata -cache_key_pattern v::${object_view}::*

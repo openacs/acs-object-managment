@@ -14,17 +14,16 @@ set page_title "[_ acs-object-management.dynamic_types]"
 set context [list $page_title]
 
 list::create \
-    -name dtypes \
+    -name object_types \
     -caption $page_title \
-    -multirow dtypes \
+    -multirow object_types \
     -key object_type \
-    -actions [list "[_ acs-object-management.add_type]" [export_vars -base dtype-add] "[_ acs-object-management.add_type]"] \
+    -actions [list "[_ acs-object-management.add_type]" [export_vars -base object-type-add] "[_ acs-object-management.add_type]"] \
     -row_pretty_plural "[_ acs-object-management.dynamic_types]" \
-    -bulk_actions [list "[_ acs-object-management.export]" dtypes-code "[_ acs-object-management.code_export]"] \
     -elements {
         pretty_name {
             label "[_ acs-object-management.pretty_name]"
-            link_url_eval $dtype_url
+            link_url_eval $object_type_url
             orderby "lower(pretty_name)"
         }
         object_type {
@@ -33,14 +32,17 @@ list::create \
         }
         action {
             label "[_ acs-object-management.Action]"
-            display_template "<a href=\"@dtypes.delete_url@\">delete</a>"
+            display_template "
+                <a class=\"button\" href=\"@object_types.delete_url@\" title=\"[_ acs-object-management.delete]\">
+                  [_ acs-object-management.delete]
+                </a>"
         }
 
     }
 
-set orderby_clause [list::orderby_clause -orderby -name dtypes]
+set orderby_clause [list::orderby_clause -orderby -name object_types]
 
-db_multirow -extend { dtype_url delete_url } dtypes select_dtypes {} {
-    set dtype_url [export_vars -base dtype {object_type}]
-    set delete_url [export_vars -base dtype-delete {object_type}]
+db_multirow -extend { object_type_url delete_url } object_types select_object_types {} {
+    set object_type_url [export_vars -base object-type {object_type}]
+    set delete_url [export_vars -base object-type-delete {object_type}]
 }
