@@ -46,15 +46,27 @@ list::create \
             display_template "
                 <a class=\"button\" href=\"@view_attributes.delete_url@\" title=\"[_ acs-object-management.delete]\">
                   [_ acs-object-management.delete]
-                </a>
+                </a>&nbsp;
+                <if @view_attributes.rownum@ gt 1>
+                  <a class=\"button\" href=\"@view_attributes.move_up_url@\" title=\"[_ acs-object-management.move_up_attribute]\">
+                    [_ acs-object-management.move_up_attribute]
+                  </a>&nbsp;
+                </if>
+                <if @view_attributes.rownum@ lt @view_attributes:rowcount@>
+                  <a class=\"button\" href=\"@view_attributes.move_down_url@\" title=\"[_ acs-object-management.move_down_attribute]\">
+                    [_ acs-object-management.move_down_attribute]
+                  </a>
+                </if>
             "
         }
     }
 
 db_multirow -cache_pool acs_metadata -cache_key v::${object_view}::get_view_attributes \
-    -extend {attribute_url delete_url manage_form_url} \
+    -extend {attribute_url delete_url manage_form_url move_up_url move_down_url} \
     view_attributes get_view_attributes {} {
     set delete_url [export_vars -base view-attributes-delete {object_view return_url attribute_id}]
+    set move_up_url [export_vars -base view-attributes-move {object_view return_url attribute_id {direction up}}]
+    set move_down_url [export_vars -base view-attributes-move {object_view return_url attribute_id {direction down}}]
 }
 
 list::create \

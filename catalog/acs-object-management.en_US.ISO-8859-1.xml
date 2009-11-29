@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <message_catalog package_key="acs-object-management" locale="en_US" charset="ISO-8859-1">
+
   <msg key="acs_object_types_admin">ACS Object Types Management</msg>
   <msg key="Action">Action</msg>
   <msg key="add">add</msg>
@@ -8,8 +9,8 @@
   <msg key="add_element">Add a Form element</msg>
   <msg key="add_form">Add Form</msg>
   <msg key="add_type">Add Type</msg>
-  <msg key="add_widget">add widget</msg>
   <msg key="add_view">Add a View</msg>
+  <msg key="add_widget">add widget</msg>
   <msg key="attribute">Attribute</msg>
   <msg key="attribute_add">Add Attribute</msg>
   <msg key="attribute_default">Default Value</msg>
@@ -28,10 +29,10 @@
   <msg key="create_type">Create Type</msg>
   <msg key="create_view">Create View</msg>
   <msg key="customize_widget">Customize Widget</msg>
-  <msg key="delete">delete</msg>
-  <msg key="Delete">Delete</msg>
   <msg key="datatype">Datatype</msg>
   <msg key="datatype_help"></msg>
+  <msg key="Delete">Delete</msg>
+  <msg key="delete">delete</msg>
   <msg key="delete_checked_attributes">Delete checked attributes</msg>
   <msg key="dynamic_types">Dynamic Types</msg>
   <msg key="edit_form">Edit Form Name</msg>
@@ -40,22 +41,22 @@
   <msg key="element_name_help">Chose the attrbiute for this widget.</msg>
   <msg key="elements">Form elements</msg>
   <msg key="export">Export</msg>
+  <msg key="form">Form</msg>
   <msg key="form_elements">Form Elements</msg>
   <msg key="form_name">Form Name</msg>
   <msg key="form_one">Form &quot;%form_name%&quot;</msg>
-  <msg key="form">Form</msg>
-  <msg key="forms">Forms</msg>
   <msg key="form_widget">Form Widget</msg>
+  <msg key="forms">Forms</msg>
   <msg key="help_text">Help Text</msg>
   <msg key="inherited_attributes">Inherited Attributes</msg>
   <msg key="is_required">Is Required</msg>
-  <msg key="remove_widget">remove widget</msg>
   <msg key="manage_form">Manage Form</msg>
+  <msg key="move_down_attribute">move down</msg>
+  <msg key="move_up_attribute">move up</msg>
   <msg key="must_supply_either_multirow_or_indexed_array">you must supply either -multirow or -indexed_array</msg>
-  <msg key="node_element_must_have">node 'element' must have either a 'name' attribute or an 'attribute' attribute.</msg>
   <msg key="No">No</msg>
+  <msg key="node_element_must_have">node 'element' must have either a 'name' attribute or an 'attribute' attribute.</msg>
   <msg key="object_type">Object Type</msg>
-  <msg key="view">View</msg>
   <msg key="param_name">Parameter</msg>
   <msg key="param_one">Parameter &quot;%param%&quot;</msg>
   <msg key="param_source">Source</msg>
@@ -74,6 +75,7 @@
   <msg key="preview_widget">Preview Widget</msg>
   <msg key="remove">Remove</msg>
   <msg key="remove_element">Remove Element from Form</msg>
+  <msg key="remove_widget">remove widget</msg>
   <msg key="required_p">Required?</msg>
   <msg key="supertype">Supertype</msg>
   <msg key="types">Types</msg>

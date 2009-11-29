@@ -41,6 +41,7 @@ ad_proc object_view::attribute::delete {
     @param object_view:required
     @param attribute_id:required
 } {
+    db_dml reorder {}
     db_dml delete {}
     object_view::flush_cache -object_view $object_view
     set var_list [list [list object_view $object_view]]
