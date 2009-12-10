@@ -8,6 +8,23 @@ insert into acs_datatypes
 values
   ('richtext', 'text');
 
+insert into acs_datatypes
+  (datatype, database_type, column_size)
+values
+  ('filename', 'varchar', '100');
+
+insert into acs_datatypes
+  (datatype, database_type)
+values
+  ('float', 'float8');
+
+-- PG 8.x has no unsigned integer datatype
+insert into acs_datatypes
+  (datatype, database_type)
+values
+  ('naturalnum', 'integer');
+
+
 -- Making user and person dynamic can lead to a broken web site, so
 -- for now at least I won't do it.  Code using these types have assumptions
 -- about the existence of certain attributes, and of course deleting them
@@ -87,9 +104,13 @@ begin;
   set database_type = 'integer'
   where datatype = 'integer';
 
-  update acs_datatypes
-  set database_type = 'money'
+  update acs_datatypes 
+  set datatype = 'currency'
   where datatype = 'money';
+
+  update acs_datatypes 
+  set database_type = 'money'
+  where datatype = 'currency';
 
   update acs_datatypes
   set database_type = 'timestamp'

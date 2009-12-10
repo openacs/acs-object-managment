@@ -260,6 +260,10 @@ begin;
     (param_id, widget, param, required_p, html_p, default_value)
   values
     (121, 'search', 'result_datatype', 'f', 'f', 'search');
+
+  -- currency widget
+  insert into acs_form_widgets (widget) values ('currency');
+
 end;
 
 -- default widgets for datatypes
@@ -304,7 +308,7 @@ begin;
   insert into acs_form_default_widgets
     (datatype, widget)
   values
-    ('money', 'text');
+    ('currency', 'currency');
 
   insert into acs_form_default_widgets
     (datatype, widget)
@@ -340,4 +344,20 @@ begin;
     (datatype, widget)
   values
     ('time_of_day', 'timestamp');
+    
+  insert into acs_form_default_widgets
+    (datatype, widget)
+  values
+    ('filename', 'text');
+
+  insert into acs_form_default_widgets
+    (datatype, widget)
+  values
+    ('float', 'text');
+
+  insert into acs_form_default_widgets
+    (datatype, widget)
+  values
+    ('naturalnum', 'text');
+    
 end;
