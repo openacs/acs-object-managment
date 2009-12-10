@@ -191,8 +191,7 @@ ad_proc object::new_from_form {
     -object_view:required
 } {
 } {
-    set object_id [template::element::get_value $object_view \
-                      [template::element::get_value $object_view __key]]
+    set object_id [template::element::get_value $object_view ${object_view}_id]
 
     form::get_attributes \
         -object_view $object_view \
@@ -371,8 +370,7 @@ ad_proc object::update_from_form {
     -object_view:required
 } {
 } {
-    set object_id [template::element::get_value $object_view \
-                      [template::element::get_value $object_view __key]]
+    set object_id [template::element::get_value $object_view ${object_view}_id]
 
     form::get_attributes \
         -object_view $object_view \
