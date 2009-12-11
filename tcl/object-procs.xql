@@ -28,9 +28,9 @@
 
   <fullquery name="object::get.get">
     <querytext>
-      select *
+      select [join $names ,]
       from $view
-      where object_id = :object_id
+      where ${view}_id = :object_id
     </querytext>
   </fullquery>
 

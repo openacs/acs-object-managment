@@ -73,6 +73,26 @@ ad_proc object_view::get_element {
     return $view($element)
 }
 
+ad_proc object_view::get_attribute_names {
+    -object_view:required
+} {
+    Return a list of attribute names for the given view (doesn't include the
+    internal attributes like tree_sortkey)
+} {
+    return [db_list -cache_pool acs_metadata -cache_key v::${object_view}::get_attr_names \
+                    get_attr_names {}]
+}
+
+ad_proc object_view::get_attribute_ids {
+    -object_view:required
+} {
+    Return a list of attribute ids for the given view (doesn't include the
+    internal attributes like tree_sortkey)
+} {
+    return [db_list -cache_pool acs_metadata -cache_key v::${object_view}::get_attr_ids \
+                    get_attr_ids {}]
+}
+
 ad_proc object_view::flush_cache {
     -object_view:required
 } {

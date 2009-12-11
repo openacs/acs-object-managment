@@ -753,7 +753,7 @@ begin
         if p_null_p then
           v_column_spec := v_column_spec || '' set null'';
         else
-          v_column_spec := v_column_spec || '' delete'';
+          v_column_spec := v_column_spec || '' cascade'';
         end if;
       end if;
 

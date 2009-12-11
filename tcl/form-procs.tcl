@@ -21,7 +21,7 @@ ad_proc form::form_part {
 } {
     set form_part [list [list ${object_view}_id:key(acs_object_id_seq)]]
     lappend form_part [list object_view:text(hidden) [list value $object_view]]
-    foreach attribute_id [db_list get_attribute_ids {}] {
+    foreach attribute_id [object_view::get_attribute_ids -object_view $object_view] {
         lappend form_part [form::element -object_view $object_view -attribute_id $attribute_id]
     }
     return $form_part
@@ -30,14 +30,20 @@ ad_proc form::form_part {
 ad_proc form::get_attributes {
     -object_view:required
     -array:required
+    -form
 } {
+
+    if { ![info exists form] } {
+        set form $object_view
+    }
+
     upvar $array local
-    foreach attribute_id [db_list get_attribute_ids {}] {
+    foreach attribute_id [object_view::get_attribute_ids -object_view $object_view] {
         object_view::attribute::get \
             -object_view $object_view \
             -attribute_id $attribute_id \
             -array attr
-        set value [template::element::get_value $object_view $attr(view_attribute)]
+        set value [template::element::get_value $form $attr(view_attribute)]
         if { [llength [info procs ::template::data::to_sql::${attr(datatype)}]] } {
             set value [template::data::to_sql::${attr(datatype)} $value]
         } else {

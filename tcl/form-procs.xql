@@ -1,24 +1,6 @@
 <?xml version="1.0"?>
 <queryset>
 
-  <fullquery name="form::form_part.get_attribute_ids">
-    <querytext>
-      select attribute_id
-      from acs_view_attributes
-      where object_view = :object_view
-      order by sort_order
-    </querytext>
-  </fullquery>
-
-  <fullquery name="form::get_attributes.get_attribute_ids">
-    <querytext>
-      select attribute_id
-      from acs_view_attributes
-      where object_view = :object_view
-      order by sort_order
-    </querytext>
-  </fullquery>
-
   <fullquery name="form::element.get_attr_info">
     <querytext>
       select aova.pretty_name, aova.sort_order, aa.datatype, aa.object_type, aova.view_attribute,

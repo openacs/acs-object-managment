@@ -25,4 +25,22 @@
     </querytext>
   </fullquery>
 
+  <fullquery name="object_view::get_attribute_names.get_attr_names">
+    <querytext>
+      select view_attribute
+      from acs_view_attributes
+      where object_view = :object_view
+      order by sort_order
+    </querytext>
+  </fullquery>
+
+  <fullquery name="object_view::get_attribute_ids.get_attr_ids">
+    <querytext>
+      select attribute_id
+      from acs_view_attributes
+      where object_view = :object_view
+      order by sort_order
+    </querytext>
+  </fullquery>
+
 </queryset>

@@ -39,7 +39,6 @@ ad_proc template::data::to_sql::date { value } {
 
 ad_proc template::data::from_sql::date { value } {
 } {
-ns_log Notice "Huh? value: $value"
     return [template::util::date::acquire ansi $value]
 }
 

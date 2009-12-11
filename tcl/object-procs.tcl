@@ -189,14 +189,23 @@ ad_proc object::new {
 
 ad_proc object::new_from_form {
     -object_view:required
+    -object_id
+    -form
 } {
 } {
-    set object_id [template::element::get_value $object_view ${object_view}_id]
+
+    if { ![info exists form] } {
+        set form $object_view
+    }
+
+    if { ![info exists object_id] } {
+        set object_id [template::element::get_value $form \
+                          [template::element::get_value $form __key]]
+    }
 
     form::get_attributes \
         -object_view $object_view \
         -array attributes
-ns_log Notice "Huh? attributes: [array get attributes]"
 
     set object_type [object_view::get_element \
                         -object_view $object_view \
@@ -266,6 +275,7 @@ ad_proc object::get {
         set view [object_type::get_root_view \
                      -object_type [object::get_object_type -object_id $object_id]]
     }
+    set names [object_view::get_attribute_names -object_view $view]
     db_1row get {} -column_array local_array
 }
 
@@ -368,12 +378,23 @@ ad_proc object::update {
 
 ad_proc object::update_from_form {
     -object_view:required
+    -object_id
+    -form
 } {
 } {
-    set object_id [template::element::get_value $object_view ${object_view}_id]
+
+    if { ![info exists form] } {
+        set form $object_view
+    }
+
+    if { ![info exists object_id] } {
+        set object_id [template::element::get_value $form \
+                          [template::element::get_value $form __key]]
+    }
 
     form::get_attributes \
         -object_view $object_view \
+        -form $form \
         -array attributes
 
     set object_type [object_view::get_element \
