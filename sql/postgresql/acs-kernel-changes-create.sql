@@ -5,24 +5,24 @@ alter table acs_datatypes add column_output_function text;
 
 insert into acs_datatypes
   (datatype, database_type)
-values
-  ('richtext', 'text');
+(select 'richtext', 'text' from dual
+  where not exists (select 1 from acs_datatypes where datatype = 'richtext'));
 
 insert into acs_datatypes
   (datatype, database_type, column_size)
-values
-  ('filename', 'varchar', '100');
+(select 'filename', 'varchar', '100' from dual
+  where not exists (select 1 from acs_datatypes where datatype = 'filename'));
 
 insert into acs_datatypes
   (datatype, database_type)
-values
-  ('float', 'float8');
+(select 'float', 'float8' from dual
+  where not exists (select 1 from acs_datatypes where datatype = 'float'));
 
 -- PG 8.x has no unsigned integer datatype
 insert into acs_datatypes
   (datatype, database_type)
-values
-  ('naturalnum', 'integer');
+(select 'naturalnum', 'integer' from dual
+  where not exists (select 1 from acs_datatypes where datatype = 'naturalnum'));
 
 
 -- Making user and person dynamic can lead to a broken web site, so

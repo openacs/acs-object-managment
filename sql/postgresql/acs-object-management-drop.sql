@@ -8,11 +8,6 @@ drop table acs_views;
 
 drop sequence acs_form_widget_param_seq;
 
-delete from acs_datatypes where datatype = 'richtext';
-delete from acs_datatypes where datatype = 'filename';
-delete from acs_datatypes where datatype = 'float';
-delete from acs_datatypes where datatype = 'naturalnum';
-
 alter table acs_datatypes drop column database_type;
 alter table acs_datatypes drop column column_size;
 alter table acs_datatypes drop column column_check_expr;
