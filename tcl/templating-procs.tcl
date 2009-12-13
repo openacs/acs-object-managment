@@ -122,3 +122,77 @@ ad_proc template::data::to_sql::richtext { value } {
     return "'[DoubleApos [list [template::util::richtext::get_property content $value] \
                                [template::util::richtext::get_property format $value]]]'"
 }
+
+ad_proc -public template::data::validate::number {
+  value_ref
+  message_ref
+} {
+  Validate number - any float - should be any rational number?
+
+  @param value_ref Reference variable to the submitted value
+  @param message_ref Reference variable for returning an error message
+
+  @return True (1) if valid, false (0) if not
+} {
+
+  upvar 2 $message_ref message $value_ref value
+
+  # Not allowing for scientific notation. Would the databases swallow it?
+  set result [regexp {^([+-]?)(?=\d|\.\d)\d*(\.\d*)?$} $value]
+
+  if { ! $result } {
+    set message "Invalid number \"$value\""
+  }
+   
+  return $result 
+}
+
+ad_proc -public template::data::validate::enumeration {
+  value_ref
+  message_ref
+} {
+  Validate enumeration as a unique csv alphanum list.
+
+  @param value_ref Reference variable to the submitted value
+  @param message_ref Reference variable for returning an error message
+
+  @return True (1) if valid, false (0) if not
+} {
+
+  upvar 2 $message_ref message $value_ref value
+
+  # alphanumeric csv
+  set result [regexp {^([A-z0-9]+,?)+$} $value]
+  
+  if { ! $result } {
+    set message "Invalid enumeration \"$value\""
+    return $result
+  }
+  
+  # unique list
+  set list [split $value ,]
+  set result [expr [llength $list] == [llength [lsort -unique $list]]]
+  
+  if { ! $result } {
+    set message "Invalid enumeration. \"$value\" does not contain unique values."
+  }  
+  
+  return $result 
+}
+
+ad_proc -public template::data::validate::time_of_day {
+  value_ref
+  message_ref
+} {
+  Validate time of day.
+
+  @param value_ref Reference variable to the submitted value
+  @param message_ref Reference variable for returning an error message
+
+  @return True (1) if valid, false (0) if not
+} {
+
+  upvar 2 $message_ref message $value_ref value
+
+  return [template::util::date::validate $value message]
+}
