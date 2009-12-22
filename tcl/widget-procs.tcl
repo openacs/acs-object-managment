@@ -79,10 +79,20 @@ ad_proc object_view::attribute::widget::param::delete {
     db_dml delete {}
 }
 
+ad_proc object_view::attribute::widget::param::delete_all {
+    -object_view:required
+    -attribute_id:required
+} {
+} {
+    db_dml delete_all {}
+}
+
 ad_proc object_view::attribute::widget::param::set {
     -object_view:required
     -attribute_id:required
     -param_id:required
+    {-param_type "onevalue"}
+    {-param_source "literal"}
     -value:required
 } {
 } {

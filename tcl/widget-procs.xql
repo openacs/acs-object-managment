@@ -67,6 +67,14 @@
     </querytext>
   </fullquery>
 
+  <fullquery name="object_view::attribute::widget::param::delete_all.delete_all">
+    <querytext>
+      delete from acs_view_attribute_widget_params
+      where object_view = :object_view
+        and attribute_id = :attribute_id
+    </querytext>
+  </fullquery>
+
   <fullquery name="object_view::attribute::widget::param::set.param_exists">
     <querytext>
       select 1
@@ -80,7 +88,9 @@
   <fullquery name="object_view::attribute::widget::param::set.update_value">
     <querytext>
       update acs_view_attribute_widget_params
-      set value = :value
+      set param_type = :param_type,
+          param_source = :param_source,
+          value = :value
       where object_view = :object_view
         and attribute_id = :attribute_id
         and param_id = :param_id
@@ -90,9 +100,9 @@
   <fullquery name="object_view::attribute::widget::param::set.insert_param">
     <querytext>
       insert into acs_view_attribute_widget_params
-        (object_view, attribute_id, param_id, value)
+        (object_view, attribute_id, param_id, param_type, param_source, value)
       values
-        (:object_view, :attribute_id, :param_id, :value)
+        (:object_view, :attribute_id, :param_id, :param_type, :param_source, :value)
     </querytext>
   </fullquery>
 

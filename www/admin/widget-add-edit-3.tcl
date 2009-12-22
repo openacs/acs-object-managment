@@ -11,10 +11,15 @@ set step [wizard current_step]
 set last_step [expr $step-1]
 set back_url [wizard get_forward_url $last_step]
 
-ad_form -name widget_preview -has_submit 1 -form \
-    [list [form::element \
-              -object_view $object_view \
-              -attribute_id $attribute_id]]
+if {[catch {
+    ad_form -name widget_preview -has_submit 1 -form \
+        [list [form::element \
+                  -object_view $object_view \
+                  -attribute_id $attribute_id]]
+} errmsg] } {
+    ad_return_error "[_ acs-subsite.Error]" "[_ acs-object-management.error_previewing_widget]"
+    ad_script_abort
+}
 
 ad_form -name widget_buttons -form {
 } -on_request {

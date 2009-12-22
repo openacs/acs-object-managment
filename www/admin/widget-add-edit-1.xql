@@ -4,7 +4,10 @@
   <fullquery name="get_form_widgets"> 
     <querytext>
       select widget, widget
-      from acs_form_widgets    
+      from acs_form_allowable_widgets    
+      where datatype = (select datatype
+                          from acs_attributes
+                         where attribute_id = :attribute_id)
     </querytext>
   </fullquery>
 

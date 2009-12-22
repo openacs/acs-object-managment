@@ -15,7 +15,8 @@
   <fullquery name="get_params">      
     <querytext>
       select
-        afwp.param_id, afwp.param, afwp.required_p, afwp.html_p,
+        afwp.param_id, afwp.param, afwp.required_p, afwp.html_p, 
+        afwp.tcl_allowed_p,
         coalesce(aovawp.value, afwp.default_value) as value,
         coalesce(aovawp.param_source,'literal') as param_source
       from

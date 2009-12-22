@@ -51,6 +51,9 @@ ad_form -name widget_register -export {attribute_id object_view} -form {
 } -on_submit {
     db_transaction {
         if { [db_0or1row get_reg_widget {}] && $registered_widget ne $widget } {
+            object_view::attribute::widget::param::delete_all \
+                -object_view $object_view \
+                -attribute_id $attribute_id
             object_view::attribute::widget::unregister \
                 -object_view $object_view \
                 -attribute_id $attribute_id

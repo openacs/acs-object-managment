@@ -16,14 +16,14 @@
 
   <fullquery name="form::element.get_params">
     <querytext>
-      select afwp.param, afwp.html_p, aovawp.value
+      select afwp.param, afwp.html_p, aovawp.value, aovawp.param_source
       from acs_form_widget_params afwp, acs_view_attribute_widget_params aovawp,
         acs_view_attribute_widgets avaw
       where avaw.object_view = :object_view
         and aovawp.attribute_id = :attribute_id
         and afwp.param_id = aovawp.param_id
       union
-      select afwp2.param, afwp2.html_p, afwp2.default_value as value
+      select afwp2.param, afwp2.html_p, afwp2.default_value as value, '' as param_source
       from acs_form_widget_params afwp2
       where not exists (select 1
                         from acs_view_attribute_widgets
