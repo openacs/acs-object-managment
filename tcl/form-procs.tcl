@@ -62,11 +62,15 @@ ad_proc form::element {
 
     set html_params {}
     set params {}
+    
     db_foreach get_params {} {
         if { $html_p } {
             lappend html_params $param
             lappend html_params $value
         } else {
+            if {$param_source eq "eval"} {
+                set value [eval $value]
+            }    
             lappend params [list $param $value]
         }
     }

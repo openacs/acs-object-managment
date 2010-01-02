@@ -25,11 +25,19 @@
       union
       select afwp2.param, afwp2.html_p, afwp2.default_value as value, '' as param_source
       from acs_form_widget_params afwp2
-      where not exists (select 1
-                        from acs_view_attribute_widgets
-                        where object_view = :object_view
-                          and attribute_id = :attribute_id)
+      where afwp2.param_id not in (select avawp.param_id
+                                     from acs_view_attribute_widget_params avawp
+                                    where avawp.object_view = :object_view
+                                      and avawp.attribute_id = :attribute_id)
         and afwp2.default_value is not null
+        and afwp2.widget in (select afwp3.widget
+                              from acs_view_attribute_widgets avaw2,
+                                   acs_view_attribute_widget_params avawp2,
+                                   acs_form_widget_params afwp3
+                             where afwp3.param_id = avawp2.param_id
+                               and afwp3.widget = avaw2.widget
+                               and avawp2.object_view = :object_view
+                               and avawp2.attribute_id = :attribute_id)
     </querytext>
   </fullquery>
 

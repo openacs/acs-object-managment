@@ -179,7 +179,7 @@ begin;
   insert into acs_form_widget_params 
     (param_id, widget, param, required_p, html_p, tcl_allowed_p, default_value)
   values
-    (40, 'radio', 'options', 't', 'f', 't', null);
+    (40, 'radio', 'options', 't', 'f', 't', '{ -- {} }');
 
   insert into acs_form_widget_params 
     (param_id, widget, param, required_p, html_p, tcl_allowed_p, default_value)
@@ -192,7 +192,7 @@ begin;
   insert into acs_form_widget_params 
     (param_id, widget, param, required_p, html_p, tcl_allowed_p, default_value)
   values
-    (50, 'checkbox', 'options', 't', 'f', 't', null);
+    (50, 'checkbox', 'options', 't', 'f', 't', '{ -- {} }');
 
   insert into acs_form_widget_params 
     (param_id, widget, param, required_p, html_p, tcl_allowed_p, default_value)
@@ -223,7 +223,7 @@ begin;
   insert into acs_form_widget_params 
     (param_id, widget, param, required_p, html_p, tcl_allowed_p, default_value)
   values
-    (80, 'multiselect', 'options', 't', 'f', 't', null);
+    (80, 'multiselect', 'options', 't', 'f', 't', '{ -- {} }');
 
   insert into acs_form_widget_params 
     (param_id, widget, param, required_p, html_p, tcl_allowed_p, default_value)
@@ -663,5 +663,30 @@ begin;
     (datatype, widget)
   values
     ('text','search');
+
+  insert into acs_form_allowable_widgets
+    (datatype, widget)
+  values
+    ('string','radio');
+
+  insert into acs_form_allowable_widgets
+    (datatype, widget)
+  values
+    ('string','checkbox');
+
+  insert into acs_form_allowable_widgets
+    (datatype, widget)
+  values
+    ('string','select');
+
+  insert into acs_form_allowable_widgets
+    (datatype, widget)
+  values
+    ('string','multiselect');
+
+  insert into acs_form_allowable_widgets
+    (datatype, widget)
+  values
+    ('string','search');
 
 end;
