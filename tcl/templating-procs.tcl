@@ -119,8 +119,12 @@ ad_proc -public template::widget::timestamp { element_reference tag_attributes }
 namespace eval template::util::richtext {}
 
 ad_proc template::data::to_sql::richtext { value } {
-    return "'[DoubleApos [list [template::util::richtext::get_property content $value] \
-                               [template::util::richtext::get_property format $value]]]'"
+    return "[list [template::util::richtext::get_property content $value] \
+                  [template::util::richtext::get_property format $value]]"
+}
+
+ad_proc template::data::from_sql::richtext { value } {
+    set value
 }
 
 ad_proc -public template::data::validate::number {

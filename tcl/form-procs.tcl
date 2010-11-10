@@ -47,7 +47,7 @@ ad_proc form::get_attributes {
         if { [llength [info procs ::template::data::to_sql::${attr(datatype)}]] } {
             set value [template::data::to_sql::${attr(datatype)} $value]
         } else {
-            set value "'$value'"
+            set value "$value"
         }
         set local($attr(view_attribute)) $value
     }

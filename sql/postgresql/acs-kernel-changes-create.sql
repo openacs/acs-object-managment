@@ -33,6 +33,10 @@ insert into acs_datatypes
 -- Types probably should have a flag saying whether or not it can be deleted, and
 -- perhaps attributes, too.  Too much change for now.
 
+-- DAVEB since you can just extend it and create a view on that, that should
+-- be plenty of customization. You can just ignore the attributes you aren't
+-- interested in
+
 --update acs_object_types
 --set dynamic_p = 't'
 --where object_type = 'person';
